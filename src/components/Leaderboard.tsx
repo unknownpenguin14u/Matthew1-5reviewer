@@ -78,13 +78,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 mb-2">
             <Trophy className="w-3.5 h-3.5 text-amber-600" />
-            <span>Opisyal na Talaan ng Iskor • Leaderboard</span>
+            <span>Official Scoreboard • Leaderboard</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Sino ang May Pinakamataas na Iskor?
+            Who Has the Highest Score?
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Tingnan ang ranggo ng mga kumuha ng pagsusulit sa Mateo 1–5 na may kaukulang pangalan at puntos.
+            View the ranking of Matthew 1–5 quiz takers with their names and points.
           </p>
         </div>
 

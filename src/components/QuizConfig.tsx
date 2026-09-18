@@ -37,13 +37,13 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100/90 text-amber-950 border border-amber-300 shadow-2xs mb-3">
           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-          <span>✝ Banal na Kasulatan • Ebanghelyo ni Mateo 1 hanggang 5</span>
+          <span>✝ Holy Scriptures • Matthew 1 to 5</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-serif">
-          Pagsusulit at Reviewer ng Salita ng Diyos
+          Bible Quiz and Reviewer
         </h2>
         <p className="mt-2 text-sm sm:text-base text-slate-700 max-w-xl mx-auto leading-relaxed">
-          Palalimin ang iyong pagkaunawa sa mga aral, talaan ng lahi ni Cristo, pagbibinyag, at ang Pangaral sa Bundok. Sagutin ang mga katanungan at subaybayan ang iyong kabuuang iskor!
+          Deepen your understanding of the teachings, Christ’s genealogy, baptism, and the Sermon on the Mount. Answer the questions and track your total score!
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
                 {latestResult.percentage}%
               </div>
               <div className="overflow-hidden">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Huling Iskor (Recent)</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Recent Score</p>
                 <p className="text-sm font-bold text-slate-200 truncate">
                   {latestResult.playerName ? `${latestResult.playerName}: ` : ''}{latestResult.score}/{latestResult.totalQuestions}
                 </p>
@@ -104,7 +104,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
               </div>
             </div>
             <span className="text-xs text-amber-400 font-medium px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 shrink-0">
-              {latestResult.percentage >= 80 ? '🌟 Pasado' : 'Subukan Muli'}
+              {latestResult.percentage >= 80 ? '🌟 Passed' : 'Try Again'}
             </span>
           </div>
         ) : (
@@ -113,8 +113,8 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-700">Handa ka na ba?</p>
-              <p className="text-xs text-slate-500">Sagutin ang mga tanong at subaybayan ang iyong kabuuang puntos.</p>
+              <p className="text-xs font-bold text-slate-700">Ready to begin?</p>
+              <p className="text-xs text-slate-500">Answer the questions and track your total points.</p>
             </div>
           </div>
         )}
@@ -159,7 +159,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
         {/* Section 1: Choose Chapter */}
         <div>
           <label className="block text-sm font-bold text-slate-800 mb-3">
-            1. Piliin ang Kabanata / Choose Chapter
+            1. Choose Chapter
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             <button
@@ -178,7 +178,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
                   {MATTHEW_QUESTIONS.length} Qs
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1 line-clamp-1">Kabanata 1 hanggang 5</p>
+              <p className="text-xs text-slate-500 mt-1 line-clamp-1">Chapters 1 to 5</p>
             </button>
 
             {([1, 2, 3, 4, 5] as MatthewChapter[]).map(ch => {
@@ -226,7 +226,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="text-sm font-bold text-slate-800">
-              2. Bilang ng mga Tanong / Number of Questions
+              2. Number of Questions
             </label>
             <span className="text-xs text-slate-500">
               {filteredQuestions.length} available
@@ -259,7 +259,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
         <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shuffle className="w-4 h-4 text-slate-500" />
-            <span className="text-sm font-medium text-slate-700">Pagsalit-salitin ang mga Tanong (Shuffle)</span>
+            <span className="text-sm font-medium text-slate-700">Shuffle Questions</span>
           </div>
           <button
             id="toggle-shuffle-btn"
@@ -286,7 +286,7 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
             className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
           >
             <Play className="w-5 h-5 fill-amber-400 text-amber-400" />
-            <span>Simulan ang Pagsusulit / Start Quiz</span>
+            <span>Start Quiz</span>
           </button>
         </div>
       </div>
@@ -296,17 +296,17 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
           <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
           <p className="text-xs font-bold text-slate-800">Instant Answer Feedback</p>
-          <p className="text-[11px] text-slate-500">Agad na malalaman kung tama o mali kasama ang talata</p>
+          <p className="text-[11px] text-slate-500">Get immediate feedback with each answer and scripture reference</p>
         </div>
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
           <Sparkles className="w-5 h-5 text-amber-600 mx-auto mb-1.5" />
           <p className="text-xs font-bold text-slate-800">Live Total Score</p>
-          <p className="text-[11px] text-slate-500">Real-time score tally, accuracy, at completion summary</p>
+          <p className="text-[11px] text-slate-500">Real-time score tally, accuracy, and completion summary</p>
         </div>
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
           <BookOpen className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
           <p className="text-xs font-bold text-slate-800">Exact Verse Citations</p>
-          <p className="text-[11px] text-slate-500">Bawat tanong ay nakabatay sa Matthew 1 to 5 notes</p>
+          <p className="text-[11px] text-slate-500">Each question is based on Matthew 1 to 5 study notes</p>
         </div>
       </div>
     </div>

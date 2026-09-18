@@ -84,16 +84,16 @@ export const NameEditorModal: React.FC<NameEditorModalProps> = ({
 
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>{isInitialPrompt ? 'Maligayang Pagdating! / Welcome!' : 'I-edit ang Pangalan'}</span>
+            <span>{isInitialPrompt ? 'Welcome!' : 'Edit Name'}</span>
           </div>
 
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            {isInitialPrompt ? 'Ipasok ang Iyong Pangalan' : 'Palitan ang Pangalan ng Manlalaro'}
+            {isInitialPrompt ? 'Enter Your Name' : 'Update Player Name'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
             {isInitialPrompt
-              ? 'Ipasok ang iyong pangalan upang maitala at makilala ka sa Leaderboard kapag nakakuha ka ng mataas na iskor.'
-              : 'I-update ang pangalan na ginagamit sa mga susunod mong pagsusulit at sa Leaderboard.'}
+              ? 'Enter your name so you can be recognized on the leaderboard when you score well.'
+              : 'Update the name used in your future quizzes and leaderboard entries.'}
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export const NameEditorModal: React.FC<NameEditorModalProps> = ({
               htmlFor="modal-name-input-field"
               className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5"
             >
-              Pangalan / Player Name
+              Player Name
             </label>
             <div className="relative">
               <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
@@ -127,7 +127,7 @@ export const NameEditorModal: React.FC<NameEditorModalProps> = ({
           <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex items-start gap-2.5">
             <Trophy className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-900 leading-snug">
-              Awtomatikong itatabi ang iyong pangalan. Hindi na ito muling hihingin sa susunod na pagbukas ng app.
+              Your name will be saved automatically and will not be requested again the next time you open the app.
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export const NameEditorModal: React.FC<NameEditorModalProps> = ({
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 text-amber-400" />
-              <span>{isInitialPrompt ? 'I-save at Magsimula' : 'I-save ang Pagbabago'}</span>
+              <span>{isInitialPrompt ? 'Save and Start' : 'Save Changes'}</span>
             </button>
 
             {isInitialPrompt && (
@@ -148,7 +148,7 @@ export const NameEditorModal: React.FC<NameEditorModalProps> = ({
                 onClick={handleSkipOrGuest}
                 className="w-full py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
               >
-                Magpatuloy bilang Anonymous / Guest
+                Continue as Anonymous / Guest
               </button>
             )}
           </div>

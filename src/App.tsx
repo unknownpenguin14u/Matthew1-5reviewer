@@ -11,6 +11,8 @@ import { GodCenteredBackground } from './components/GodCenteredBackground';
 import { Question, UserAnswer, QuizSettings, QuizResultRecord } from './types';
 import { MATTHEW_QUESTIONS } from './data/questions';
 import { soundManager } from './utils/audio';
+import { auth, signInWithGoogle, signOutUser } from './firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 const STORAGE_KEY_RECORDS = 'matthew_quiz_records_v1';
 const STORAGE_KEY_SETTINGS = 'matthew_quiz_settings_v1';
@@ -75,6 +77,29 @@ export default function App() {
 
   const [googleUser, setGoogleUser] = useState<GoogleUser | null>(getSavedGoogleUser);
   const [googleReady, setGoogleReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user: User | null) => {
+      if (!user) {
+        setGoogleUser(null);
+        localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
+        return;
+      }
+
+      const firebaseUser: GoogleUser = {
+        name: user.displayName || user.email || 'Google User',
+        email: user.email || '',
+        picture: user.photoURL || '',
+        idToken: user.uid,
+      };
+
+      setGoogleUser(firebaseUser);
+      localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(firebaseUser));
+      handleUpdateSettings({ playerName: firebaseUser.name.trim() });
+    });
+
+    return () => unsub();
+  }, []);
 
   // Settings
   const [settings, setSettings] = useState<QuizSettings>(() => {
@@ -187,30 +212,32 @@ export default function App() {
     document.body.appendChild(script);
   }, [settings.playerName]);
 
-  const handleGoogleSignIn = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      alert('Add VITE_GOOGLE_CLIENT_ID to your .env file to enable Google Sign-In.');
-      return;
-    }
+  const handleGoogleSignIn = async () => {
+    try {
+      const user = await signInWithGoogle();
+      const firebaseUser: GoogleUser = {
+        name: user.displayName || user.email || 'Google User',
+        email: user.email || '',
+        picture: user.photoURL || '',
+        idToken: user.uid,
+      };
 
-    if (!window.google?.accounts?.id) {
-      alert('Google Sign-In is still loading. Please try again in a moment.');
-      return;
+      setGoogleUser(firebaseUser);
+      localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(firebaseUser));
+      handleUpdateSettings({ playerName: firebaseUser.name.trim() });
+    } catch (error) {
+      console.error('Firebase Google sign-in failed', error);
+      alert('Google sign-in failed. Please try again.');
     }
-
-    window.google.accounts.id.prompt((notification: { isNotDisplayed?: () => boolean; isSkippedMoment?: () => boolean }) => {
-      if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
-        console.info('Google Sign-In prompt was not displayed.');
-      }
-    });
   };
 
-  const handleGoogleSignOut = () => {
-    setGoogleUser(null);
-    localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.disableAutoSelect();
+  const handleGoogleSignOut = async () => {
+    try {
+      await signOutUser();
+      setGoogleUser(null);
+      localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
+    } catch (error) {
+      console.error('Firebase sign-out failed', error);
     }
   };
 
@@ -385,13 +412,13 @@ export default function App() {
   };
 
   const handleQuitQuiz = () => {
-    if (window.confirm('Nais mo bang huminto at bumalik sa menu? / Do you want to quit the quiz?')) {
+    if (window.confirm('Do you want to quit the quiz and return to the menu?')) {
       setQuizStatus('idle');
     }
   };
 
   const handleClearHistory = () => {
-    if (window.confirm('Sigurado ka bang nais mong burahin ang lahat ng talaan ng iskor sa Leaderboard?')) {
+    if (window.confirm('Are you sure you want to clear all leaderboard scores?')) {
       setRecords([]);
       localStorage.removeItem(STORAGE_KEY_RECORDS);
     }
@@ -534,7 +561,7 @@ export default function App() {
               }}
               className="text-amber-800 hover:underline font-bold flex items-center gap-1"
             >
-              Leaderboard & Pinakamataas na Iskor
+              Leaderboard & Top Scores
             </button>
             <span>•</span>
             <button
@@ -544,7 +571,7 @@ export default function App() {
               }}
               className="text-amber-800 hover:underline font-bold"
             >
-              Buksan ang Lahat ng Tanong
+              Open All Questions
             </button>
           </div>
         </div>
