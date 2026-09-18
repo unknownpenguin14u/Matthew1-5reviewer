@@ -140,7 +140,7 @@ export const FlashcardMode: React.FC = () => {
       <div
         id="interactive-flashcard"
         onClick={() => { soundManager.playClick(); setIsFlipped(!isFlipped); }}
-        className="w-full min-h-[320px] sm:min-h-[360px] bg-white rounded-3xl border-2 border-slate-200 hover:border-amber-400 shadow-md p-6 sm:p-10 flex flex-col justify-between cursor-pointer select-none transition-all duration-200 hover:shadow-lg relative overflow-hidden"
+        className="w-full min-h-[320px] sm:min-h-[360px] bg-white/95 rounded-3xl border-2 border-amber-200/90 hover:border-amber-400 shadow-[0_8px_30px_rgba(217,119,6,0.08)] p-6 sm:p-10 flex flex-col justify-between cursor-pointer select-none transition-all duration-200 hover:shadow-xl relative overflow-hidden backdrop-blur-xs"
       >
         {/* Top badge */}
         <div className="flex items-center justify-between text-xs font-semibold text-slate-400">

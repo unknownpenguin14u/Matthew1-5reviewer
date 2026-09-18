@@ -37,7 +37,7 @@ export const ReviewerList: React.FC = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs mb-6 space-y-3">
+      <div className="bg-white/95 rounded-2xl p-4 border border-amber-200/80 shadow-[0_2px_15px_rgba(217,119,6,0.04)] mb-6 space-y-3 backdrop-blur-xs">
         <div className="relative">
           <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3" />
           <input
@@ -93,7 +93,7 @@ export const ReviewerList: React.FC = () => {
           <div
             key={item.id}
             id={`reviewer-card-${item.id}`}
-            className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-amber-300 transition-colors"
+            className="bg-white/95 rounded-2xl border border-amber-200/80 p-5 shadow-[0_2px_15px_rgba(217,119,6,0.04)] hover:border-amber-400 transition-colors backdrop-blur-xs"
           >
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">

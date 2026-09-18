@@ -79,15 +79,15 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   return (
     <div id="active-quiz-card" className="max-w-3xl mx-auto px-4 py-6">
       {/* Top Header / Progress & Live Score Bar */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 mb-6">
+      <div className="bg-white/95 rounded-2xl shadow-[0_4px_20px_rgba(217,119,6,0.05)] border border-amber-200/70 p-4 sm:p-5 mb-6 backdrop-blur-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           {/* Question Index & Chapter */}
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-md bg-slate-900 text-white font-bold text-xs">
+            <span className="px-2.5 py-1 rounded-md bg-slate-950 text-amber-300 font-bold text-xs border border-amber-500/20">
               Tanong {currentIndex + 1} ng {totalQuestions}
             </span>
-            <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 font-semibold text-xs border border-amber-200">
-              Matthew Ch {question.chapter}
+            <span className="px-2.5 py-1 rounded-md bg-amber-100/90 text-amber-950 font-bold text-xs border border-amber-300">
+              ✝ Mateo Kabanata {question.chapter}
             </span>
           </div>
 
@@ -138,7 +138,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       </div>
 
       {/* Main Question Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+      <div className="bg-white/95 rounded-2xl shadow-[0_4px_25px_rgba(217,119,6,0.06)] border border-amber-200/70 p-6 sm:p-8 backdrop-blur-xs">
         {/* Question Prompt */}
         <div className="mb-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">

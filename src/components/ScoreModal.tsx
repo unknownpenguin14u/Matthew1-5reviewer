@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Question, UserAnswer, MatthewChapter } from '../types';
-import { Award, RotateCcw, CheckCircle, XCircle, BookOpen, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Award, RotateCcw, CheckCircle, XCircle, BookOpen, AlertCircle, ArrowLeft, Trophy, User, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundManager } from '../utils/audio';
 
@@ -9,10 +9,14 @@ interface ScoreModalProps {
   totalQuestions: number;
   questions: Question[];
   userAnswers: UserAnswer[];
+  playerName: string;
+  recordId: string;
+  onUpdatePlayerName: (recordId: string, newName: string) => void;
   onRetry: () => void;
   onRetryMissed: (missedQuestions: Question[]) => void;
   onBackToMenu: () => void;
   onOpenReviewer: () => void;
+  onOpenLeaderboard: () => void;
 }
 
 export const ScoreModal: React.FC<ScoreModalProps> = ({
@@ -20,12 +24,18 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
   totalQuestions,
   questions,
   userAnswers,
+  playerName,
+  recordId,
+  onUpdatePlayerName,
   onRetry,
   onRetryMissed,
   onBackToMenu,
   onOpenReviewer,
+  onOpenLeaderboard,
 }) => {
   const [filterMode, setFilterMode] = useState<'all' | 'missed' | 'correct'>('all');
+  const [editingName, setEditingName] = useState<string>(playerName || '');
+  const [isSaved, setIsSaved] = useState<boolean>(false);
 
   const percentage = Math.round((score / totalQuestions) * 100);
 
@@ -46,6 +56,14 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
       }
     }
   }, [percentage]);
+
+  const handleSaveName = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = editingName.trim() || 'Anonymous';
+    onUpdatePlayerName(recordId, trimmed);
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
 
   // Breakdown by chapter
   const chapterBreakdown: Record<MatthewChapter, { total: number; correct: number }> = {
@@ -101,7 +119,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
   return (
     <div id="quiz-results-container" className="max-w-3xl mx-auto px-4 py-8">
       {/* Total Score Summary Card */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+      <div className="bg-white/95 rounded-3xl shadow-[0_8px_35px_rgba(217,119,6,0.08)] border border-amber-200/80 overflow-hidden mb-8 backdrop-blur-xs">
         <div className="bg-slate-900 text-white p-6 sm:p-8 text-center relative overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl" />
@@ -112,6 +130,12 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
               <Award className="w-3.5 h-3.5" />
               {gradeTitle}
             </span>
+
+            {playerName && (
+              <p className="text-amber-400 font-bold text-sm tracking-wide mb-1">
+                Puntos para kay: <span className="underline decoration-amber-400/50">{playerName}</span>
+              </p>
+            )}
 
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
               Kabuuang Iskor / Total Score
@@ -158,6 +182,16 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
           )}
 
           <button
+            id="modal-leaderboard-btn"
+            type="button"
+            onClick={onOpenLeaderboard}
+            className="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-sm font-bold flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <Trophy className="w-4 h-4 text-amber-600" />
+            <span>Leaderboard</span>
+          </button>
+
+          <button
             id="open-reviewer-btn"
             type="button"
             onClick={onOpenReviewer}
@@ -176,6 +210,48 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
             <ArrowLeft className="w-4 h-4" />
             <span>Menu</span>
           </button>
+        </div>
+
+        {/* Leaderboard Name Registration Card */}
+        <div className="p-4 sm:p-6 bg-amber-50/40 border-b border-amber-200/60">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <Trophy className="w-4 h-4 text-amber-600" />
+                <span>Itala sa Talaan ng Pinakamataas (Leaderboard)</span>
+              </div>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Kumpirmahin o palitan ang pangalan na lilitaw sa opisyal na Leaderboard.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveName} className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-56">
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  id="modal-player-name-input"
+                  type="text"
+                  value={editingName}
+                  onChange={e => setEditingName(e.target.value)}
+                  placeholder="Ipasok ang iyong pangalan..."
+                  maxLength={30}
+                  className="w-full pl-9 pr-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+              <button
+                id="save-leaderboard-name-btn"
+                type="submit"
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                  isSaved
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-900 hover:bg-slate-800 text-white'
+                }`}
+              >
+                {isSaved ? <Check className="w-3.5 h-3.5" /> : null}
+                <span>{isSaved ? 'Na-save!' : 'I-save'}</span>
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Chapter Performance Breakdown */}

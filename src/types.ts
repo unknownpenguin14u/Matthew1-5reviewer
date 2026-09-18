@@ -22,10 +22,12 @@ export interface QuizSettings {
   questionCount: number; // 5, 10, 20, 30, or total
   shuffle: boolean;
   soundEnabled: boolean;
+  playerName: string;
 }
 
 export interface QuizResultRecord {
   id: string;
+  playerName: string;
   date: string;
   chapter: string;
   score: number;

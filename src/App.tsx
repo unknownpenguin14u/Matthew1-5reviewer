@@ -6,22 +6,63 @@ import { ScoreModal } from './components/ScoreModal';
 import { FlashcardMode } from './components/FlashcardMode';
 import { ReviewerList } from './components/ReviewerList';
 import { ScoreHistory } from './components/ScoreHistory';
+import { NameEditorModal } from './components/NameEditorModal';
+import { GodCenteredBackground } from './components/GodCenteredBackground';
 import { Question, UserAnswer, QuizSettings, QuizResultRecord } from './types';
-import { MATTHEW_QUESTIONS, CHAPTER_SUMMARIES } from './data/questions';
+import { MATTHEW_QUESTIONS } from './data/questions';
 import { soundManager } from './utils/audio';
 
 const STORAGE_KEY_RECORDS = 'matthew_quiz_records_v1';
 const STORAGE_KEY_SETTINGS = 'matthew_quiz_settings_v1';
+const STORAGE_KEY_PLAYER_NAME = 'matthew_quiz_player_name_v1';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<AppMode>('quiz');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [lastRecordId, setLastRecordId] = useState<string>('');
+
+  // Determine if player name is already saved.
+  // If saved, ignore automatically (do not pop up).
+  // If not saved (empty/null), make the name editor appear when web is opened.
+  const [isNameModalOpen, setIsNameModalOpen] = useState<boolean>(() => {
+    try {
+      const savedPlayer = localStorage.getItem(STORAGE_KEY_PLAYER_NAME);
+      return !savedPlayer || savedPlayer.trim().length === 0;
+    } catch {
+      return false;
+    }
+  });
+
+  const [isInitialPrompt, setIsInitialPrompt] = useState<boolean>(() => {
+    try {
+      const savedPlayer = localStorage.getItem(STORAGE_KEY_PLAYER_NAME);
+      return !savedPlayer || savedPlayer.trim().length === 0;
+    } catch {
+      return false;
+    }
+  });
 
   // Settings
   const [settings, setSettings] = useState<QuizSettings>(() => {
+    let savedPlayer = '';
+    try {
+      savedPlayer = localStorage.getItem(STORAGE_KEY_PLAYER_NAME) || '';
+    } catch {
+      // ignore
+    }
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          selectedChapter: parsed.selectedChapter || 'all',
+          questionCount: parsed.questionCount || 10,
+          shuffle: parsed.shuffle ?? true,
+          soundEnabled: parsed.soundEnabled ?? true,
+          playerName: parsed.playerName || savedPlayer || '',
+        };
+      }
     } catch {
       // ignore
     }
@@ -30,6 +71,7 @@ export default function App() {
       questionCount: 10,
       shuffle: true,
       soundEnabled: true,
+      playerName: savedPlayer || '',
     };
   });
 
@@ -67,6 +109,9 @@ export default function App() {
       const updated = { ...prev, ...partial };
       try {
         localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(updated));
+        if (partial.playerName !== undefined) {
+          localStorage.setItem(STORAGE_KEY_PLAYER_NAME, partial.playerName);
+        }
       } catch {
         // ignore
       }
@@ -155,8 +200,12 @@ export default function App() {
       ? 'All Chapters (1–5)'
       : `Matthew Chapter ${settings.selectedChapter}`;
 
+    const newRecordId = String(Date.now());
+    const finalPlayerName = settings.playerName.trim() || 'Anonymous';
+
     const newRecord: QuizResultRecord = {
-      id: String(Date.now()),
+      id: newRecordId,
+      playerName: finalPlayerName,
       date: new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -171,8 +220,10 @@ export default function App() {
       timeTakenSeconds: 0,
     };
 
+    setLastRecordId(newRecordId);
+
     setRecords(prev => {
-      const updated = [newRecord, ...prev].slice(0, 50); // Keep last 50
+      const updated = [newRecord, ...prev].slice(0, 100); // Keep last 100
       try {
         localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(updated));
       } catch {
@@ -182,6 +233,35 @@ export default function App() {
     });
 
     setQuizStatus('completed');
+  };
+
+  const handleUpdateRecordPlayerName = (recordId: string, newName: string) => {
+    const cleanName = newName.trim() || 'Anonymous';
+
+    setRecords(prev => {
+      const updated = prev.map(r => (r.id === recordId ? { ...r, playerName: cleanName } : r));
+      try {
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    // Update settings so subsequent quizzes retain the name
+    handleUpdateSettings({ playerName: cleanName });
+  };
+
+  const handleDeleteRecord = (recordId: string) => {
+    setRecords(prev => {
+      const updated = prev.filter(r => r.id !== recordId);
+      try {
+        localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
   };
 
   const handleRetryMissed = (missedList: Question[]) => {
@@ -195,7 +275,7 @@ export default function App() {
   };
 
   const handleClearHistory = () => {
-    if (window.confirm('Sigurado ka bang nais mong burahin ang lahat ng talaan ng iskor?')) {
+    if (window.confirm('Sigurado ka bang nais mong burahin ang lahat ng talaan ng iskor sa Leaderboard?')) {
       setRecords([]);
       localStorage.removeItem(STORAGE_KEY_RECORDS);
     }
@@ -208,8 +288,30 @@ export default function App() {
 
   const latestResult = records[0] || null;
 
+  // Modal actions
+  const handleSavePlayerNameFromModal = (newName: string) => {
+    const cleanName = newName.trim() || 'Anonymous';
+    handleUpdateSettings({ playerName: cleanName });
+    setIsNameModalOpen(false);
+    setIsInitialPrompt(false);
+  };
+
+  const handleOpenNameEditor = () => {
+    setIsInitialPrompt(false);
+    setIsNameModalOpen(true);
+  };
+
+  // Top scorer calculation across all records
+  const topScorer = useMemo(() => {
+    if (records.length === 0) return null;
+    return [...records].sort((a, b) => {
+      if (b.percentage !== a.percentage) return b.percentage - a.percentage;
+      return b.score - a.score;
+    })[0] || null;
+  }, [records]);
+
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-800 flex flex-col font-sans selection:bg-amber-200">
+    <GodCenteredBackground>
       <Header
         currentMode={currentMode}
         onSelectMode={mode => {
@@ -220,6 +322,8 @@ export default function App() {
         }}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
+        playerName={settings.playerName}
+        onOpenNameEditor={handleOpenNameEditor}
       />
 
       <main className="flex-1 w-full pb-12">
@@ -232,6 +336,9 @@ export default function App() {
                 onUpdateSettings={handleUpdateSettings}
                 onStartQuiz={handleStartNewQuiz}
                 latestResult={latestResult}
+                topScorer={topScorer}
+                onViewLeaderboard={() => setCurrentMode('history')}
+                onOpenNameEditor={handleOpenNameEditor}
               />
             )}
 
@@ -255,12 +362,19 @@ export default function App() {
                 totalQuestions={activeQuestions.length}
                 questions={activeQuestions}
                 userAnswers={userAnswers}
+                playerName={settings.playerName}
+                recordId={lastRecordId}
+                onUpdatePlayerName={handleUpdateRecordPlayerName}
                 onRetry={handleStartNewQuiz}
                 onRetryMissed={handleRetryMissed}
                 onBackToMenu={() => setQuizStatus('idle')}
                 onOpenReviewer={() => {
                   setQuizStatus('idle');
                   setCurrentMode('reviewer');
+                }}
+                onOpenLeaderboard={() => {
+                  setQuizStatus('idle');
+                  setCurrentMode('history');
                 }}
               />
             )}
@@ -273,11 +387,12 @@ export default function App() {
         {/* Full Question and Answer Reviewer Notes */}
         {currentMode === 'reviewer' && <ReviewerList />}
 
-        {/* Saved Scores History */}
+        {/* Saved Scores / Leaderboard */}
         {currentMode === 'history' && (
           <ScoreHistory
             records={records}
             onClearHistory={handleClearHistory}
+            onDeleteRecord={handleDeleteRecord}
             onTakeNewQuiz={() => {
               setCurrentMode('quiz');
               setQuizStatus('idle');
@@ -287,26 +402,43 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="py-6 border-t border-slate-200 text-center text-xs text-slate-500 bg-white/60">
+      <footer className="py-5 border-t border-amber-900/10 text-center text-xs text-slate-600 bg-amber-50/40 backdrop-blur-xs">
         <div className="max-w-4xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3">
-          <p>
+          <p className="font-serif">
             Interactive Q&A Reviewer • Matthew Chapters 1 to 5 ({MATTHEW_QUESTIONS.length} Questions)
           </p>
           <div className="flex items-center gap-3">
-            <span>KJV / Tagalog Reviewer</span>
+            <button
+              onClick={() => {
+                setCurrentMode('history');
+                setQuizStatus('idle');
+              }}
+              className="text-amber-800 hover:underline font-bold flex items-center gap-1"
+            >
+              Leaderboard & Pinakamataas na Iskor
+            </button>
             <span>•</span>
             <button
               onClick={() => {
                 setCurrentMode('reviewer');
                 setQuizStatus('idle');
               }}
-              className="text-amber-600 hover:underline font-semibold"
+              className="text-amber-800 hover:underline font-bold"
             >
               Buksan ang Lahat ng Tanong
             </button>
           </div>
         </div>
       </footer>
-    </div>
+
+      {/* Name Editor Modal */}
+      <NameEditorModal
+        isOpen={isNameModalOpen}
+        currentName={settings.playerName}
+        onSaveName={handleSavePlayerNameFromModal}
+        onClose={() => setIsNameModalOpen(false)}
+        isInitialPrompt={isInitialPrompt}
+      />
+    </GodCenteredBackground>
   );
 }

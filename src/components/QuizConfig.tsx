@@ -1,13 +1,16 @@
 import React from 'react';
 import { MatthewChapter, QuizSettings, QuizResultRecord } from '../types';
 import { MATTHEW_QUESTIONS, CHAPTER_SUMMARIES } from '../data/questions';
-import { Play, Sparkles, BookOpen, CheckCircle, Shuffle } from 'lucide-react';
+import { Play, Sparkles, BookOpen, CheckCircle, Shuffle, User, Trophy } from 'lucide-react';
 
 interface QuizConfigProps {
   settings: QuizSettings;
   onUpdateSettings: (newSettings: Partial<QuizSettings>) => void;
   onStartQuiz: () => void;
   latestResult: QuizResultRecord | null;
+  topScorer?: QuizResultRecord | null;
+  onViewLeaderboard?: () => void;
+  onOpenNameEditor?: () => void;
 }
 
 export const QuizConfig: React.FC<QuizConfigProps> = ({
@@ -15,6 +18,9 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
   onUpdateSettings,
   onStartQuiz,
   latestResult,
+  topScorer,
+  onViewLeaderboard,
+  onOpenNameEditor,
 }) => {
   const chapterFilter = settings.selectedChapter;
   const filteredQuestions = chapterFilter === 'all'
@@ -29,39 +35,127 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({
     <div id="quiz-config-container" className="max-w-3xl mx-auto px-4 py-8">
       {/* Welcome Banner */}
       <div className="text-center mb-8">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          Interactive Bible Reviewer • Matthew 1 to 5
-        </span>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Question & Answer Quiz with Live Scoring
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100/90 text-amber-950 border border-amber-300 shadow-2xs mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+          <span>✝ Banal na Kasulatan • Ebanghelyo ni Mateo 1 hanggang 5</span>
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-serif">
+          Pagsusulit at Reviewer ng Salita ng Diyos
         </h2>
-        <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
-          Subukin ang iyong kaalaman mula sa Ebanghelyo ni Mateo Kabanata 1 hanggang 5. Sagutin ang mga tanong at subaybayan ang iyong kabuuang iskor!
+        <p className="mt-2 text-sm sm:text-base text-slate-700 max-w-xl mx-auto leading-relaxed">
+          Palalimin ang iyong pagkaunawa sa mga aral, talaan ng lahi ni Cristo, pagbibinyag, at ang Pangaral sa Bundok. Sagutin ang mga katanungan at subaybayan ang iyong kabuuang iskor!
         </p>
       </div>
 
-      {/* Latest Score Card (if any) */}
-      {latestResult && (
-        <div id="previous-score-banner" className="mb-6 p-4 rounded-xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-4 shadow-sm border border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-              {latestResult.percentage}%
+      {/* Top Scorer & Previous Score Highlights */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        {topScorer ? (
+          <div
+            id="top-scorer-banner"
+            onClick={onViewLeaderboard}
+            className="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-transparent border border-amber-300/80 flex items-center justify-between gap-3 shadow-2xs cursor-pointer hover:border-amber-400 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-xs shrink-0">
+                <Trophy className="w-5 h-5 fill-slate-950" />
+              </div>
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200/80 px-1.5 py-0.2 rounded">
+                    #1 Top Scorer
+                  </span>
+                </div>
+                <p className="text-sm font-bold text-slate-900 truncate">
+                  {topScorer.playerName || 'Anonymous'}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {topScorer.score}/{topScorer.totalQuestions} ({topScorer.percentage}%) • {topScorer.chapter}
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-amber-700 shrink-0 hover:underline">
+              Leaderboard →
+            </span>
+          </div>
+        ) : (
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <Trophy className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Previous Score</p>
-              <p className="text-sm font-medium text-slate-200">
-                {latestResult.score} out of {latestResult.totalQuestions} ({latestResult.chapter})
-              </p>
+              <p className="text-xs font-bold text-slate-700">Maging Unang Nangunguna!</p>
+              <p className="text-xs text-slate-500">Kumuha ng pagsusulit upang maitala ang unang iskor sa Leaderboard.</p>
             </div>
           </div>
-          <span className="text-xs text-amber-400 font-medium px-2.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20">
-            {latestResult.percentage >= 80 ? '🌟 Excellent' : latestResult.percentage >= 50 ? '👍 Good Job' : '📖 Review & Try Again'}
-          </span>
-        </div>
-      )}
+        )}
+
+        {latestResult ? (
+          <div id="previous-score-banner" className="p-3.5 rounded-xl bg-slate-900 text-white flex items-center justify-between gap-3 shadow-xs border border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                {latestResult.percentage}%
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Huling Iskor (Recent)</p>
+                <p className="text-sm font-bold text-slate-200 truncate">
+                  {latestResult.playerName ? `${latestResult.playerName}: ` : ''}{latestResult.score}/{latestResult.totalQuestions}
+                </p>
+                <p className="text-xs text-slate-400 truncate">{latestResult.chapter}</p>
+              </div>
+            </div>
+            <span className="text-xs text-amber-400 font-medium px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 shrink-0">
+              {latestResult.percentage >= 80 ? '🌟 Pasado' : 'Subukan Muli'}
+            </span>
+          </div>
+        ) : (
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-700">Handa ka na ba?</p>
+              <p className="text-xs text-slate-500">Sagutin ang mga tanong at subaybayan ang iyong kabuuang puntos.</p>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-7">
+        {/* Section: Player Name */}
+        <div className="bg-amber-50/50 p-4 sm:p-5 rounded-2xl border border-amber-200/80">
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="player-name-input" className="block text-sm font-bold text-slate-900">
+              <span className="flex items-center gap-2">
+                <User className="w-4 h-4 text-amber-600" />
+                Pangalan ng Manlalaro / Player Name
+              </span>
+            </label>
+            {onOpenNameEditor && (
+              <button
+                type="button"
+                onClick={onOpenNameEditor}
+                className="text-xs font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+              >
+                Buksan ang Name Editor
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-slate-600 mb-3">
+            Ipasok ang iyong pangalan upang maitala at makita kung sino ang may pinakamataas na iskor sa Leaderboard!
+          </p>
+          <div className="relative">
+            <input
+              id="player-name-input"
+              type="text"
+              placeholder="Halimbawa: Juan Dela Cruz, Maria, Brother David..."
+              value={settings.playerName}
+              onChange={e => onUpdateSettings({ playerName: e.target.value })}
+              maxLength={35}
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-2xs"
+            />
+          </div>
+        </div>
+
         {/* Section 1: Choose Chapter */}
         <div>
           <label className="block text-sm font-bold text-slate-800 mb-3">
