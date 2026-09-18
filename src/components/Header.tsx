@@ -48,12 +48,12 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <h1 className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              <span>Mateo 1–5</span>
+              <span>Matthew 1–5</span>
               <span className="text-amber-400 font-bold text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 tracking-wide uppercase">
-                ✝ Banal na Kasulatan
+                ✝ Holy Scriptures
               </span>
             </h1>
-            <p className="text-xs text-amber-200/70 hidden sm:block font-serif italic">Reviewer & Kabuuang Iskor • Para sa Kaluwalhatian ng Diyos</p>
+            <p className="text-xs text-amber-200/70 hidden sm:block font-serif italic">Reviewer & Total Score • For the Glory of God</p>
           </div>
         </div>
 
@@ -149,11 +149,11 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={onOpenNameEditor}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-amber-400/50 transition-all cursor-pointer ml-1"
-            title="I-click upang palitan ang iyong pangalan"
+            title="Click to edit your name"
           >
             <User className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="max-w-[75px] sm:max-w-[110px] truncate">
-              {playerName || 'Ipasok ang Pangalan'}
+              {playerName || 'Enter Name'}
             </span>
             <Edit3 className="w-3 h-3 text-slate-400 hover:text-white hidden sm:inline-block shrink-0" />
           </button>

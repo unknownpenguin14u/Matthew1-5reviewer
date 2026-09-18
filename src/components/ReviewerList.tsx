@@ -29,10 +29,10 @@ export const ReviewerList: React.FC = () => {
       {/* Header Info */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-          Kumpletong Reviewer • Matthew Chapters 1–5
+          Complete Reviewer • Matthew Chapters 1–5
         </h2>
         <p className="text-sm text-slate-600 mt-1">
-          Lahat ng tanong at sagot mula sa orihinal na reviewer notes na may kaukulang talata sa Banal na Kasulatan.
+          All questions and answers from the original review notes with their corresponding scripture references.
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export const ReviewerList: React.FC = () => {
           <input
             id="reviewer-search-input"
             type="text"
-            placeholder="Maghanap ng tanong, sagot, o talata (hal. Herod, Jordan, Beatitudes, Jesus)..."
+            placeholder="Search questions, answers, or verses (e.g. Herod, Jordan, Beatitudes, Jesus)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm text-slate-900"
@@ -62,7 +62,7 @@ export const ReviewerList: React.FC = () => {
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              Lahat ({MATTHEW_QUESTIONS.length})
+              All ({MATTHEW_QUESTIONS.length})
             </button>
             {([1, 2, 3, 4, 5] as MatthewChapter[]).map(ch => (
               <button
@@ -82,7 +82,7 @@ export const ReviewerList: React.FC = () => {
           </div>
 
           <span className="text-xs text-slate-500 font-medium">
-            Ipinapakita ang {filtered.length} tanong
+            Showing {filtered.length} questions
           </span>
         </div>
       </div>
@@ -110,7 +110,7 @@ export const ReviewerList: React.FC = () => {
                 type="button"
                 onClick={() => handleCopy(item.id, `Q: ${item.question}\nA: ${item.answer} (${item.verse})`)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                title="Kopyahin ang tanong at sagot"
+                title="Copy question and answer"
               >
                 {copiedId === item.id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -122,7 +122,7 @@ export const ReviewerList: React.FC = () => {
 
             <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200/70 text-emerald-950">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 block mb-0.5">
-                Sagot (Answer):
+                Answer:
               </span>
               <p className="text-sm font-semibold">{item.answer}</p>
             </div>
@@ -138,12 +138,12 @@ export const ReviewerList: React.FC = () => {
 
         {filtered.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-8">
-            <p className="text-slate-500 font-medium">Walang natagpuang tanong na tugma sa iyong paghahanap.</p>
+            <p className="text-slate-500 font-medium">No matching questions were found.</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedChapter('all'); }}
               className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs"
             >
-              I-clear ang Search
+              Clear Search
             </button>
           </div>
         )}

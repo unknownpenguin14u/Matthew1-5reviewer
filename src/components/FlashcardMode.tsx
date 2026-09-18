@@ -84,7 +84,7 @@ export const FlashcardMode: React.FC = () => {
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            Lahat (1–5)
+            All (1–5)
           </button>
           {([1, 2, 3, 4, 5] as MatthewChapter[]).map(ch => (
             <button
@@ -149,7 +149,7 @@ export const FlashcardMode: React.FC = () => {
           </span>
           <span className="flex items-center gap-1 text-amber-600">
             <RefreshCw className="w-3.5 h-3.5" />
-            {isFlipped ? 'I-click para bumalik sa tanong' : 'I-click upang makita ang sagot'}
+            {isFlipped ? 'Click to flip back to the question' : 'Click to reveal the answer'}
           </span>
         </div>
 
@@ -157,7 +157,7 @@ export const FlashcardMode: React.FC = () => {
         <div className="my-auto py-6 text-center">
           {!isFlipped ? (
             <div>
-              <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Tanong / Question</p>
+              <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Question</p>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-relaxed">
                 {currentQ.question}
               </h3>
@@ -170,7 +170,7 @@ export const FlashcardMode: React.FC = () => {
               </span>
 
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tamang Sagot</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Correct Answer</p>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-emerald-700 leading-snug">
                   {currentQ.answer}
                 </h3>
@@ -187,7 +187,7 @@ export const FlashcardMode: React.FC = () => {
 
         {/* Card Footer prompt */}
         <div className="text-center text-xs text-slate-400 pt-3 border-t border-slate-100">
-          {!isFlipped ? 'I-tap ang kard para ibunyag ang sagot at talata' : 'Gamitin ang mga button sa ibaba upang i-record ang iyong progreso'}
+          {!isFlipped ? 'Tap the card to reveal the answer and verse' : 'Use the buttons below to record your progress'}
         </div>
       </div>
 

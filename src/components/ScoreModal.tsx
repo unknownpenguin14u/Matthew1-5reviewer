@@ -98,21 +98,21 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
   });
 
   // Performance tier
-  let gradeTitle = 'Magpatuloy sa Pag-aaral!';
-  let gradeSubtitle = 'Rebyuhin ang mga talata at subukang muli.';
+  let gradeTitle = 'Keep Learning!';
+  let gradeSubtitle = 'Review the passages and try again.';
   let badgeColor = 'bg-amber-100 text-amber-900 border-amber-300';
 
   if (percentage >= 90) {
-    gradeTitle = 'Napakagaling! / Biblical Scholar!';
-    gradeSubtitle = 'Kahanga-hanga ang iyong kabuuang kabatiran sa Mateo 1–5!';
+    gradeTitle = 'Excellent! / Biblical Scholar!';
+    gradeSubtitle = 'Your understanding of Matthew 1–5 is outstanding!';
     badgeColor = 'bg-emerald-100 text-emerald-900 border-emerald-300';
   } else if (percentage >= 75) {
-    gradeTitle = 'Napakahusay! / Great Mastery!';
-    gradeSubtitle = 'Matibay at malinaw ang iyong pagkaunawa sa mga kabanata.';
+    gradeTitle = 'Great Mastery!';
+    gradeSubtitle = 'Your understanding of the chapters is strong and clear.';
     badgeColor = 'bg-blue-100 text-blue-900 border-blue-300';
   } else if (percentage >= 50) {
-    gradeTitle = 'Magandang Pagsisikap! / Good Job!';
-    gradeSubtitle = 'Nasa tamang landas ka! May ilang talata pang puwedeng patatagin.';
+    gradeTitle = 'Good Job!';
+    gradeSubtitle = 'You are on the right path! A few passages are still worth strengthening.';
     badgeColor = 'bg-amber-100 text-amber-900 border-amber-300';
   }
 
@@ -133,12 +133,12 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
 
             {playerName && (
               <p className="text-amber-400 font-bold text-sm tracking-wide mb-1">
-                Puntos para kay: <span className="underline decoration-amber-400/50">{playerName}</span>
+                Points for: <span className="underline decoration-amber-400/50">{playerName}</span>
               </p>
             )}
 
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              Kabuuang Iskor / Total Score
+              Total Score
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-6">
               {gradeSubtitle}
@@ -166,7 +166,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
             className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 text-amber-400" />
-            <span>Subukang Muli / Retry</span>
+            <span>Retry</span>
           </button>
 
           {missedQuestions.length > 0 && (
@@ -177,7 +177,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
               className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <AlertCircle className="w-4 h-4" />
-              <span>Ulitin ang mga Mali ({missedQuestions.length})</span>
+              <span>Retry Missed ({missedQuestions.length})</span>
             </button>
           )}
 
@@ -218,10 +218,10 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
             <div>
               <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
                 <Trophy className="w-4 h-4 text-amber-600" />
-                <span>Itala sa Talaan ng Pinakamataas (Leaderboard)</span>
+                <span>Record to Leaderboard</span>
               </div>
               <p className="text-xs text-slate-600 mt-0.5">
-                Kumpirmahin o palitan ang pangalan na lilitaw sa opisyal na Leaderboard.
+                Confirm or update the name that will appear on the leaderboard.
               </p>
             </div>
 
@@ -233,7 +233,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                   type="text"
                   value={editingName}
                   onChange={e => setEditingName(e.target.value)}
-                  placeholder="Ipasok ang iyong pangalan..."
+                  placeholder="Enter your name..."
                   maxLength={30}
                   className="w-full pl-9 pr-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
@@ -248,7 +248,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 }`}
               >
                 {isSaved ? <Check className="w-3.5 h-3.5" /> : null}
-                <span>{isSaved ? 'Na-save!' : 'I-save'}</span>
+                <span>{isSaved ? 'Saved!' : 'Save'}</span>
               </button>
             </form>
           </div>
@@ -257,7 +257,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
         {/* Chapter Performance Breakdown */}
         <div className="p-6">
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">
-            Pagganap Bawat Kabanata / Chapter Breakdown
+            Chapter Performance
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
             {([1, 2, 3, 4, 5] as MatthewChapter[]).map(ch => {
@@ -289,7 +289,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <span>Pagsusuri ng mga Sagot / Answer Review</span>
+            <span>Answer Review</span>
             <span className="text-xs font-normal text-slate-500">({reviewItems.length} questions)</span>
           </h3>
 
@@ -303,7 +303,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 filterMode === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Lahat ({questions.length})
+              All ({questions.length})
             </button>
             <button
               id="filter-missed-btn"
@@ -313,7 +313,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 filterMode === 'missed' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Mali ({missedQuestions.length})
+              Missed ({missedQuestions.length})
             </button>
             <button
               id="filter-correct-btn"
@@ -323,7 +323,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 filterMode === 'correct' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Tama ({score})
+              Correct ({score})
             </button>
           </div>
         </div>
@@ -358,7 +358,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                   </div>
 
                   <span className={`text-xs font-bold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {isCorrect ? '+1 Puntos' : '0 Puntos'}
+                    {isCorrect ? '+1 Point' : '0 Points'}
                   </span>
                 </div>
 
@@ -369,11 +369,11 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 <div className="space-y-1 text-xs">
                   {!isCorrect && userAns && (
                     <div className="text-rose-700 font-medium">
-                      <span className="font-bold">Iyong Sagot:</span> {userAns.selectedOption}
+                      <span className="font-bold">Your Answer:</span> {userAns.selectedOption}
                     </div>
                   )}
                   <div className="text-emerald-800 font-medium">
-                    <span className="font-bold">Tamang Sagot:</span> {q.answer}
+                    <span className="font-bold">Correct Answer:</span> {q.answer}
                   </div>
                   {q.explanation && (
                     <div className="text-slate-600 italic pt-1 border-t border-slate-200/60 mt-2">
