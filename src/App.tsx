@@ -11,8 +11,6 @@ import { GodCenteredBackground } from './components/GodCenteredBackground';
 import { Question, UserAnswer, QuizSettings, QuizResultRecord } from './types';
 import { MATTHEW_QUESTIONS } from './data/questions';
 import { soundManager } from './utils/audio';
-import { auth, signInWithGoogle, signOutUser } from './firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
 
 const STORAGE_KEY_RECORDS = 'matthew_quiz_records_v1';
 const STORAGE_KEY_SETTINGS = 'matthew_quiz_settings_v1';
@@ -77,33 +75,6 @@ export default function App() {
 
   const [googleUser, setGoogleUser] = useState<GoogleUser | null>(getSavedGoogleUser);
   const [googleReady, setGoogleReady] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!auth) {
-      return;
-    }
-
-    const unsub = onAuthStateChanged(auth, (user: User | null) => {
-      if (!user) {
-        setGoogleUser(null);
-        localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
-        return;
-      }
-
-      const firebaseUser: GoogleUser = {
-        name: user.displayName || user.email || 'Google User',
-        email: user.email || '',
-        picture: user.photoURL || '',
-        idToken: user.uid,
-      };
-
-      setGoogleUser(firebaseUser);
-      localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(firebaseUser));
-      handleUpdateSettings({ playerName: firebaseUser.name.trim() });
-    });
-
-    return () => unsub();
-  }, []);
 
   // Settings
   const [settings, setSettings] = useState<QuizSettings>(() => {
@@ -216,38 +187,18 @@ export default function App() {
     document.body.appendChild(script);
   }, [settings.playerName]);
 
-  const handleGoogleSignIn = async () => {
-    if (!auth) {
-      alert('Google sign-in is not configured yet. Add your Firebase values to the environment file.');
+  const handleGoogleSignIn = () => {
+    if (!googleReady || !window.google?.accounts?.id) {
+      alert('Google sign-in is not configured yet. Add your Google client ID to the environment file.');
       return;
     }
 
-    try {
-      const user = await signInWithGoogle();
-      const firebaseUser: GoogleUser = {
-        name: user.displayName || user.email || 'Google User',
-        email: user.email || '',
-        picture: user.photoURL || '',
-        idToken: user.uid,
-      };
-
-      setGoogleUser(firebaseUser);
-      localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(firebaseUser));
-      handleUpdateSettings({ playerName: firebaseUser.name.trim() });
-    } catch (error) {
-      console.error('Firebase Google sign-in failed', error);
-      alert('Google sign-in failed. Please try again.');
-    }
+    window.google.accounts.id.prompt();
   };
 
-  const handleGoogleSignOut = async () => {
-    try {
-      await signOutUser();
-      setGoogleUser(null);
-      localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
-    } catch (error) {
-      console.error('Firebase sign-out failed', error);
-    }
+  const handleGoogleSignOut = () => {
+    setGoogleUser(null);
+    localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
   };
 
   const handleToggleSound = () => {
