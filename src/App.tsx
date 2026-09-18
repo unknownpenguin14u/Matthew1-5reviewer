@@ -79,6 +79,10 @@ export default function App() {
   const [googleReady, setGoogleReady] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!auth) {
+      return;
+    }
+
     const unsub = onAuthStateChanged(auth, (user: User | null) => {
       if (!user) {
         setGoogleUser(null);
@@ -213,6 +217,11 @@ export default function App() {
   }, [settings.playerName]);
 
   const handleGoogleSignIn = async () => {
+    if (!auth) {
+      alert('Google sign-in is not configured yet. Add your Firebase values to the environment file.');
+      return;
+    }
+
     try {
       const user = await signInWithGoogle();
       const firebaseUser: GoogleUser = {

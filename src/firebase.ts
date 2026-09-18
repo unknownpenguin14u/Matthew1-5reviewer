@@ -11,12 +11,18 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
+const hasFirebaseConfig = Object.values(firebaseConfig).every(value => typeof value === 'string' && value.trim().length > 0);
+
+const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
+export const googleProvider = app ? new GoogleAuthProvider() : null;
 
 export const signInWithGoogle = async () => {
+  if (!auth || !googleProvider) {
+    throw new Error('Firebase is not configured.');
+  }
+
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
@@ -27,5 +33,6 @@ export const signInWithGoogle = async () => {
 };
 
 export const signOutUser = async () => {
+  if (!auth) return;
   await signOut(auth);
 };
