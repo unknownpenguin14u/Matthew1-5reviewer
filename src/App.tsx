@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Header, AppMode } from './components/Header';
 import { QuizConfig } from './components/QuizConfig';
 import { QuizCard } from './components/QuizCard';
@@ -22,20 +22,6 @@ type GoogleUser = {
   email: string;
   picture?: string;
   idToken: string;
-};
-
-const decodeGoogleJwt = (token: string) => {
-  try {
-    const payload = token.split('.')[1];
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
-    const decoded = atob(padded);
-    return JSON.parse(decodeURIComponent(
-      Array.from(decoded).map(ch => `%${`00${ch.charCodeAt(0).toString(16)}`.slice(-2)}`).join('')
-    ));
-  } catch {
-    return {} as Record<string, string>;
-  }
 };
 
 const getSavedGoogleUser = (): GoogleUser | null => {
@@ -75,6 +61,7 @@ export default function App() {
 
   const [googleUser, setGoogleUser] = useState<GoogleUser | null>(getSavedGoogleUser);
   const [googleReady, setGoogleReady] = useState<boolean>(false);
+  const googleTokenClient = useRef<any>(null);
 
   // Settings
   const [settings, setSettings] = useState<QuizSettings>(() => {
@@ -140,28 +127,39 @@ export default function App() {
     }
 
     const initializeGoogleClient = () => {
-      if (!window.google?.accounts?.id) return;
+      if (!window.google?.accounts?.oauth2) return;
 
-      window.google.accounts.id.initialize({
+      googleTokenClient.current = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
-        callback: (response: { credential: string }) => {
-          const payload = decodeGoogleJwt(response.credential);
-          const user: GoogleUser = {
-            name: payload.name || payload.given_name || settings.playerName || 'Google User',
-            email: payload.email || '',
-            picture: payload.picture || '',
-            idToken: response.credential,
-          };
+        scope: 'openid email profile',
+        callback: async (response: { access_token?: string; error?: string }) => {
+          if (response.error || !response.access_token) {
+            console.error('Google sign-in failed', response.error || 'No access token returned.');
+            return;
+          }
 
-          setGoogleUser(user);
-          localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(user));
+          try {
+            const profileResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: `Bearer ${response.access_token}` },
+            });
+            if (!profileResponse.ok) throw new Error('Unable to load Google profile.');
 
-          if (user.name.trim()) {
-            handleUpdateSettings({ playerName: user.name.trim() });
+            const profile = await profileResponse.json();
+            const user: GoogleUser = {
+              name: profile.name || profile.email || 'Google User',
+              email: profile.email || '',
+              picture: profile.picture || '',
+              idToken: response.access_token,
+            };
+
+            setGoogleUser(user);
+            localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(user));
+            if (user.name.trim()) handleUpdateSettings({ playerName: user.name.trim() });
+          } catch (error) {
+            console.error('Google profile lookup failed', error);
+            alert('Google sign-in failed. Please try again.');
           }
         },
-        auto_select: false,
-        cancel_on_tap_outside: false,
       });
 
       setGoogleReady(true);
@@ -185,15 +183,20 @@ export default function App() {
     script.defer = true;
     script.onload = initializeGoogleClient;
     document.body.appendChild(script);
-  }, [settings.playerName]);
+  }, []);
 
   const handleGoogleSignIn = () => {
-    if (!googleReady || !window.google?.accounts?.id) {
+    if (!googleReady || !googleTokenClient.current) {
       alert('Google sign-in is not configured yet. Add your Google client ID to the environment file.');
       return;
     }
 
-    window.google.accounts.id.prompt();
+    try {
+      googleTokenClient.current.requestAccessToken({ prompt: 'select_account' });
+    } catch (error) {
+      console.error('Google sign-in failed', error);
+      alert('Google sign-in failed. Please try again.');
+    }
   };
 
   const handleGoogleSignOut = () => {
