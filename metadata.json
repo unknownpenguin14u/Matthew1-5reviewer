@@ -1,0 +1,6 @@
+{
+  "name": "Matthew 1-5 Interactive Q&A Quiz",
+  "description": "Interactive question and answer reviewer on Matthew Chapters 1 to 5 with live scoring, instant verse citations, and chapter progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
