@@ -15,6 +15,37 @@ import { soundManager } from './utils/audio';
 const STORAGE_KEY_RECORDS = 'matthew_quiz_records_v1';
 const STORAGE_KEY_SETTINGS = 'matthew_quiz_settings_v1';
 const STORAGE_KEY_PLAYER_NAME = 'matthew_quiz_player_name_v1';
+const STORAGE_KEY_GOOGLE_USER = 'matthew_quiz_google_user_v1';
+
+type GoogleUser = {
+  name: string;
+  email: string;
+  picture?: string;
+  idToken: string;
+};
+
+const decodeGoogleJwt = (token: string) => {
+  try {
+    const payload = token.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+    const decoded = atob(padded);
+    return JSON.parse(decodeURIComponent(
+      Array.from(decoded).map(ch => `%${`00${ch.charCodeAt(0).toString(16)}`.slice(-2)}`).join('')
+    ));
+  } catch {
+    return {} as Record<string, string>;
+  }
+};
+
+const getSavedGoogleUser = (): GoogleUser | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_GOOGLE_USER);
+    return raw ? JSON.parse(raw) as GoogleUser : null;
+  } catch {
+    return null;
+  }
+};
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<AppMode>('quiz');
@@ -41,6 +72,9 @@ export default function App() {
       return false;
     }
   });
+
+  const [googleUser, setGoogleUser] = useState<GoogleUser | null>(getSavedGoogleUser);
+  const [googleReady, setGoogleReady] = useState<boolean>(false);
 
   // Settings
   const [settings, setSettings] = useState<QuizSettings>(() => {
@@ -97,6 +131,88 @@ export default function App() {
   useEffect(() => {
     soundManager.setMuted(!soundEnabled);
   }, [soundEnabled]);
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      setGoogleReady(false);
+      return;
+    }
+
+    const initializeGoogleClient = () => {
+      if (!window.google?.accounts?.id) return;
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response: { credential: string }) => {
+          const payload = decodeGoogleJwt(response.credential);
+          const user: GoogleUser = {
+            name: payload.name || payload.given_name || settings.playerName || 'Google User',
+            email: payload.email || '',
+            picture: payload.picture || '',
+            idToken: response.credential,
+          };
+
+          setGoogleUser(user);
+          localStorage.setItem(STORAGE_KEY_GOOGLE_USER, JSON.stringify(user));
+
+          if (user.name.trim()) {
+            handleUpdateSettings({ playerName: user.name.trim() });
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: false,
+      });
+
+      setGoogleReady(true);
+    };
+
+    if (window.google?.accounts?.id) {
+      initializeGoogleClient();
+      return;
+    }
+
+    const existingScript = document.getElementById('google-gsi-script') as HTMLScriptElement | null;
+    if (existingScript) {
+      existingScript.addEventListener('load', initializeGoogleClient, { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-gsi-script';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = initializeGoogleClient;
+    document.body.appendChild(script);
+  }, [settings.playerName]);
+
+  const handleGoogleSignIn = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      alert('Add VITE_GOOGLE_CLIENT_ID to your .env file to enable Google Sign-In.');
+      return;
+    }
+
+    if (!window.google?.accounts?.id) {
+      alert('Google Sign-In is still loading. Please try again in a moment.');
+      return;
+    }
+
+    window.google.accounts.id.prompt((notification: { isNotDisplayed?: () => boolean; isSkippedMoment?: () => boolean }) => {
+      if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+        console.info('Google Sign-In prompt was not displayed.');
+      }
+    });
+  };
+
+  const handleGoogleSignOut = () => {
+    setGoogleUser(null);
+    localStorage.removeItem(STORAGE_KEY_GOOGLE_USER);
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.disableAutoSelect();
+    }
+  };
 
   const handleToggleSound = () => {
     const next = !soundEnabled;
@@ -324,6 +440,9 @@ export default function App() {
         onToggleSound={handleToggleSound}
         playerName={settings.playerName}
         onOpenNameEditor={handleOpenNameEditor}
+        googleUser={googleUser}
+        onGoogleSignIn={handleGoogleSignIn}
+        onGoogleSignOut={handleGoogleSignOut}
       />
 
       <main className="flex-1 w-full pb-12">

@@ -3,6 +3,13 @@ import { BookOpen, Trophy, Layers, Volume2, VolumeX, HelpCircle, User, Edit3 } f
 
 export type AppMode = 'quiz' | 'flashcards' | 'reviewer' | 'history';
 
+export interface GoogleProfile {
+  name: string;
+  email: string;
+  picture?: string;
+  idToken?: string;
+}
+
 interface HeaderProps {
   currentMode: AppMode;
   onSelectMode: (mode: AppMode) => void;
@@ -10,6 +17,9 @@ interface HeaderProps {
   onToggleSound: () => void;
   playerName: string;
   onOpenNameEditor: () => void;
+  googleUser?: GoogleProfile | null;
+  onGoogleSignIn: () => void;
+  onGoogleSignOut: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +29,9 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSound,
   playerName,
   onOpenNameEditor,
+  googleUser,
+  onGoogleSignIn,
+  onGoogleSignOut,
 }) => {
   return (
     <header id="main-header" className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-slate-100 border-b border-amber-500/20 sticky top-0 z-30 shadow-md">
@@ -99,7 +112,38 @@ export const Header: React.FC<HeaderProps> = ({
             <span>Leaderboard</span>
           </button>
 
-          {/* Player Name Chip / Editor Button */}
+          {/* Google Sign-In / Player Name */}
+          {googleUser ? (
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 ml-1">
+              {googleUser.picture ? (
+                <img src={googleUser.picture} alt={googleUser.name} className="w-6 h-6 rounded-full border border-emerald-400/40" />
+              ) : (
+                <User className="w-4 h-4 text-emerald-300 shrink-0" />
+              )}
+              <span className="max-w-[90px] sm:max-w-[120px] truncate text-xs font-semibold text-emerald-100">
+                {googleUser.name}
+              </span>
+              <button
+                type="button"
+                onClick={onGoogleSignOut}
+                className="text-[10px] font-medium text-emerald-200 hover:text-white underline-offset-2 hover:underline"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <button
+              id="header-google-signin-btn"
+              type="button"
+              onClick={onGoogleSignIn}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-emerald-400/50 transition-all cursor-pointer ml-1"
+              title="Continue with Google"
+            >
+              <User className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="max-w-[90px] sm:max-w-[120px] truncate">Google Login</span>
+            </button>
+          )}
+
           <button
             id="header-player-name-btn"
             type="button"
